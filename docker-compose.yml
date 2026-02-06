@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  screener:
+    build:
+      context: .
+    container_name: screener
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_PATH=rf_smote_model.joblib
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
