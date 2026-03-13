@@ -1,32 +1,30 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from joblib import load
-import numpy as np
 import os
-from .llm_extractor import extract_features
+from .classifier import predict_proba
 
 app = FastAPI()
 
-MODEL_PATH = os.getenv("MODEL_PATH", "rf_smote_model.joblib")
-
-MODEL = load(MODEL_PATH)
+LLM_MODEL = os.environ.get("MODEL")
 
 class InferenceRequest(BaseModel):
     title: str
     abstract: str
 
 class InferenceResponse(BaseModel):
+    payload: dict
     prediction: int
     probability: float
     input_tokens: int
     output_tokens: int
+    extracted_features: list
+    llm: str
+
 
 @app.post("/prediction", response_model=InferenceResponse)
 async def predict(request: InferenceRequest):
-
-    features, input_tokens, output_tokens = await extract_features(request.title, request.abstract)
-    print(features)
-    X = np.array(features).reshape(1, -1)
-    proba = MODEL.predict_proba(X)[0, 1]
-    pred = int(proba >= 0.35)
-    return InferenceResponse(prediction=pred, probability=proba, input_tokens=input_tokens, output_tokens=output_tokens)
+    proba, extracted_features, payload = await predict_proba(request.title, request.abstract)
+    pred = int(proba >= 0.5)
+    input_tokens = -1
+    output_tokens = -1
+    return InferenceResponse(payload=payload, prediction=pred, probability=proba, input_tokens=input_tokens, output_tokens=output_tokens, extracted_features=extracted_features, llm=LLM_MODEL)

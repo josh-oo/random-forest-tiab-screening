@@ -208,3 +208,6 @@ __marimo__/
 
 rf_smote_model.joblib
 .DS_Store
+
+logs
+tests/decision_tree.png

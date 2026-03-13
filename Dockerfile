@@ -1,21 +1,21 @@
 # Stage 1: Training
-FROM python:3.11-slim AS trainer
+#FROM python:3.11-slim AS trainer
 
-ENV DATA="data/"
+#ENV DATA="data/"
 
-WORKDIR /app
+#WORKDIR /app
 
 
 # Install only training dependencies
-COPY requirements-training.txt ./
-RUN pip install --no-cache-dir -r requirements-training.txt
+#COPY requirements-training.txt ./
+#RUN pip install --no-cache-dir -r requirements-training.txt
 
 # Copy training code and data
-COPY src/ ./src/
-COPY data/ ./data/
+#COPY src/ ./src/
+#COPY data/ ./data/
 
 # Run training script to produce the model artifact
-RUN python src/training/train.py
+#RUN python src/training/train.py
 
 # Stage 2: Inference
 FROM python:3.11-slim AS inference
@@ -29,7 +29,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy model and inference code
-COPY --from=trainer /app/rf_smote_model.joblib ./rf_smote_model.joblib
+COPY src/training/dt_smote_pipeline_model.joblib ./dt_smote_pipeline_model.joblib
 COPY src/inference/ ./src/inference/
 COPY data/llm_questions.csv ./data/llm_questions.csv
 

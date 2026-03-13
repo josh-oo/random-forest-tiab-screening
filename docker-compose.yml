@@ -6,6 +6,24 @@ services:
     container_name: screener
     ports:
       - "8000:8000"
+    depends_on:
+      - redis
     environment:
       - MODEL_PATH=rf_smote_model.joblib
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - MODEL=${MODEL}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--appendonly", "yes", "--loglevel", "warning"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
